@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'exchange.dart';
 
 class PriceScreen extends StatefulWidget {
@@ -30,6 +29,7 @@ class _PriceScreenState extends State<PriceScreen> {
       onChanged: (String value) {
         setState(() {
           selectedCurrency = value;
+          getExchangedata();
         });
       },
     );
@@ -44,7 +44,8 @@ class _PriceScreenState extends State<PriceScreen> {
       backgroundColor: Colors.lightBlue,
       itemExtent: 32.0,
       onSelectedItemChanged: (selectedIndex) {
-        print(selectedIndex);
+        selectedCurrency = currenciesList[selectedIndex];
+        getExchangedata();
       },
       children: pickerItems,
     );
@@ -52,12 +53,11 @@ class _PriceScreenState extends State<PriceScreen> {
 
   void getExchangedata() async {
     ExchangeModel exchangeModel = ExchangeModel();
-    var exchangeData = await exchangeModel.getExchangeData();
+    var chosenCurrency = selectedCurrency;
+    var exchangeData = await exchangeModel.getExchangeData(chosenCurrency);
     setState(() {
-      
-    rate = exchangeData.toStringAsFixed(0);
+      rate = exchangeData.toStringAsFixed(0);
     });
-    print(exchangeData);
   }
 
   @override
@@ -86,7 +86,7 @@ class _PriceScreenState extends State<PriceScreen> {
               child: Padding(
                 padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
                 child: Text(
-                  '1 BTC = $rate USD',
+                  '1 BTC = $rate $selectedCurrency',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 20.0,

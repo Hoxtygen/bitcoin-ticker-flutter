@@ -3,11 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 final apiKey = DotEnv().env['coin_apiKey'];
 // final myApi = "6AF4DAF1-E649-4D72-9E3F-64C7DFECF991";
-final api = "https://rest.coinapi.io/v1/exchangerate/BTC/USD";
+final api = "https://rest.coinapi.io/v1/exchangerate/BTC";
 
 class ExchangeModel {
-  Future<dynamic> getExchangeData() async {
-    var url = "$api/?apiKey=$apiKey";
+  Future<dynamic> getExchangeData(currency) async {
+    var url = "$api/$currency?apiKey=$apiKey";
     NetworkHelper networkHelper = NetworkHelper(url);
     var exchangeData = await networkHelper.getData();
     return exchangeData;
