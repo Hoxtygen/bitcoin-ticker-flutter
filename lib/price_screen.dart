@@ -1,8 +1,8 @@
+import 'package:bitcoin_ticker/crypto_card.dart';
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
 import 'package:flutter/cupertino.dart';
 import 'dart:io' show Platform;
-import 'exchange.dart';
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -51,12 +51,15 @@ class _PriceScreenState extends State<PriceScreen> {
     );
   }
 
+  Map<String, String> coinValues = {};
+  bool isWaiting = false;
+
   void getExchangedata() async {
-    ExchangeModel exchangeModel = ExchangeModel();
-    var chosenCurrency = selectedCurrency;
-    var exchangeData = await exchangeModel.getExchangeData(chosenCurrency);
+    isWaiting = true;
+    var exchangeData = await ExchangeData().getExchangeData(selectedCurrency);
+    isWaiting = false;
     setState(() {
-      rate = exchangeData.toStringAsFixed(0);
+      coinValues = exchangeData;
     });
   }
 
@@ -64,6 +67,21 @@ class _PriceScreenState extends State<PriceScreen> {
   void initState() {
     super.initState();
     getExchangedata();
+  }
+
+  Column makeCryptoCards() {
+    List<CryptoCard> cryptoCards = [];
+    for (var cryptoCoin in cryptoList) {
+      cryptoCards.add(CryptoCard(
+        cryptoCurrency: cryptoCoin,
+        selectedCurrency: selectedCurrency,
+        value: isWaiting ? "?" : coinValues[cryptoCoin],
+      ));
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: cryptoCards,
+    );
   }
 
   Widget build(BuildContext context) {
@@ -75,26 +93,20 @@ class _PriceScreenState extends State<PriceScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
-            child: Card(
-              color: Colors.lightBlueAccent,
-              elevation: 5.0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(vertical: 15.0, horizontal: 28.0),
-                child: Text(
-                  '1 BTC = $rate $selectedCurrency',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+          CryptoCard(
+            cryptoCurrency: "ETH",
+            value: isWaiting ? "?" : coinValues["ETH"],
+            selectedCurrency: selectedCurrency,
+          ),
+          CryptoCard(
+            cryptoCurrency: "BTC",
+            value: isWaiting ? "?" : coinValues["BTC"],
+            selectedCurrency: selectedCurrency,
+          ),
+          CryptoCard(
+            cryptoCurrency: "LTC",
+            value: isWaiting ? "?" : coinValues["LTC"],
+            selectedCurrency: selectedCurrency,
           ),
           Container(
             height: 150.0,
